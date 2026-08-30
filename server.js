@@ -14,6 +14,9 @@ import express from 'express';
 import { Readable } from 'node:stream';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import dns from 'node:dns/promises';
+import net from 'node:net';
+import { createHash, timingSafeEqual } from 'node:crypto';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -23,10 +26,71 @@ const OPENAI_BASE_URL = (process.env.OPENAI_BASE_URL || 'https://api.openai.com/
 const VISION_MODEL = process.env.OPENAI_VISION_MODEL || 'gpt-4o-mini';
 const TTS_MODEL = process.env.OPENAI_TTS_MODEL || 'gpt-4o-mini-tts';
 const TTS_VOICE = process.env.OPENAI_TTS_VOICE || 'ash';
+const APP_PASSWORD = process.env.APP_PASSWORD || '';
+const ALLOW_PRIVATE_NETWORKS = process.env.ALLOW_PRIVATE_NETWORKS === '1';
 
 const app = express();
+
+// Optional site-wide password (HTTP Basic auth, any username). Strongly
+// recommended on a public deployment: /api/commentary spends OpenAI credits
+// and /api/proxy relays streams on behalf of whoever can reach the server.
+if (APP_PASSWORD) {
+  const digest = (s) => createHash('sha256').update(s).digest();
+  const expected = digest(APP_PASSWORD);
+  app.use((req, res, next) => {
+    const header = req.headers.authorization || '';
+    const decoded = header.startsWith('Basic ')
+      ? Buffer.from(header.slice(6), 'base64').toString()
+      : '';
+    const password = decoded.includes(':') ? decoded.slice(decoded.indexOf(':') + 1) : '';
+    if (password && timingSafeEqual(digest(password), expected)) return next();
+    res.setHeader('WWW-Authenticate', 'Basic realm="SportsOzzy"');
+    res.status(401).send('Authentication required');
+  });
+}
+
 app.use(express.json({ limit: '30mb' }));
 app.use(express.static(path.join(__dirname, 'public')));
+
+// SSRF guard: the resolver and proxy fetch user-supplied URLs, so refuse
+// anything that resolves to a private/internal address unless explicitly
+// allowed (ALLOW_PRIVATE_NETWORKS=1, for local development fixtures).
+function isPrivateIp(ip) {
+  if (net.isIPv6(ip)) {
+    const lower = ip.toLowerCase();
+    if (lower.startsWith('::ffff:')) return isPrivateIp(lower.slice(7));
+    return (
+      lower === '::1' ||
+      lower === '::' ||
+      lower.startsWith('fe80') ||
+      lower.startsWith('fc') ||
+      lower.startsWith('fd')
+    );
+  }
+  const o = ip.split('.').map(Number);
+  return (
+    o[0] === 0 ||
+    o[0] === 10 ||
+    o[0] === 127 ||
+    (o[0] === 100 && o[1] >= 64 && o[1] <= 127) ||
+    (o[0] === 169 && o[1] === 254) ||
+    (o[0] === 172 && o[1] >= 16 && o[1] <= 31) ||
+    (o[0] === 192 && o[1] === 168)
+  );
+}
+
+async function assertPublicHost(url) {
+  if (ALLOW_PRIVATE_NETWORKS) return;
+  const { hostname } = new URL(url);
+  const addresses = net.isIP(hostname)
+    ? [{ address: hostname }]
+    : await dns.lookup(hostname, { all: true });
+  if (addresses.length === 0 || addresses.some((a) => isPrivateIp(a.address))) {
+    const err = new Error('Refusing to fetch private or internal addresses.');
+    err.status = 403;
+    throw err;
+  }
+}
 
 // ---------------------------------------------------------------------------
 // Persona
@@ -100,6 +164,7 @@ app.get('/api/resolve', async (req, res) => {
     return res.json({ streams: [pageUrl], direct: true });
   }
   try {
+    await assertPublicHost(pageUrl);
     const candidates = new Set();
     const page = await fetch(pageUrl, {
       headers: { 'User-Agent': 'Mozilla/5.0 (SportsOzzy)', Accept: 'text/html,*/*' },
@@ -134,7 +199,7 @@ app.get('/api/resolve', async (req, res) => {
     }
     res.json({ streams });
   } catch (err) {
-    res.status(502).json({ error: `Could not fetch that page: ${err.message}` });
+    res.status(err.status || 502).json({ error: `Could not fetch that page: ${err.message}` });
   }
 });
 
@@ -171,6 +236,7 @@ app.get('/api/proxy', async (req, res) => {
     return res.status(400).send('Bad url');
   }
   try {
+    await assertPublicHost(target);
     const upstream = await fetch(target, {
       headers: { 'User-Agent': 'Mozilla/5.0 (SportsOzzy)', Referer: new URL(target).origin },
       redirect: 'follow',
@@ -193,7 +259,7 @@ app.get('/api/proxy', async (req, res) => {
     res.setHeader('Content-Type', ctype || 'application/octet-stream');
     Readable.fromWeb(upstream.body).pipe(res);
   } catch (err) {
-    res.status(502).send(`Proxy error: ${err.message}`);
+    res.status(err.status || 502).send(`Proxy error: ${err.message}`);
   }
 });
 
