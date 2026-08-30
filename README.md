@@ -59,6 +59,8 @@ demand a user gesture before audio can play).
 | `OPENAI_TTS_VOICE` | `ash` | TTS voice (`ash`, `verse`, `ballad`, `coral`, …). |
 | `OPENAI_BASE_URL` | `https://api.openai.com/v1` | Override for proxies/compatible APIs. |
 | `PORT` | `3210` | HTTP port. |
+| `APP_PASSWORD` | — | If set, the whole site requires this password (HTTP Basic auth, any username). Strongly recommended for public deployments — the commentary endpoint spends your OpenAI credits. |
+| `ALLOW_PRIVATE_NETWORKS` | — | Set to `1` to let the resolver/proxy fetch private/localhost addresses (local development only; they are blocked by default to prevent SSRF). |
 
 ### In-player controls
 
@@ -66,6 +68,41 @@ demand a user gesture before audio can play).
 - **Original commentator removal** — 0% keeps the broadcast mix, 100% is full centre-channel cancellation.
 - **Ambient / Ozzy volume**, **commentary pace** (seconds between lines), and a free-text
   **context** field ("WK mountainbike, Van der Poel is the favourite") that is fed to the model.
+
+## Hosted version: ozzysports.live (GitHub Pages)
+
+The `docs/` folder is a fully static build of SportsOzzy that runs entirely in the
+browser, deployed to GitHub Pages by `.github/workflows/pages.yml` on every push to
+`main`. Differences from the server version:
+
+- Viewers paste their **own OpenAI API key** on the page. It is stored only in that
+  browser's localStorage, and commentary/speech requests go directly from the browser to
+  OpenAI — there is no server to hold a shared key.
+- Streams play **straight from their CDN** (no proxy), so you need the direct `.m3u8`
+  URL, and the CDN must allow cross-origin access for frame capture (most HLS CDNs do).
+  Geo-blocked streams follow the viewer's own location; DRM streams don't work anywhere.
+
+### One-time setup
+
+1. In the repo: **Settings → Pages → Build and deployment → Source: GitHub Actions.**
+2. Merge to `main` (or run the "Deploy GitHub Pages" workflow manually). The site appears
+   at `https://pas-mllr.github.io/sportsozzy/`.
+3. `docs/CNAME` already declares `ozzysports.live`. At your domain registrar, add:
+
+   | Type | Name | Value |
+   | --- | --- | --- |
+   | A | `@` | `185.199.108.153` |
+   | A | `@` | `185.199.109.153` |
+   | A | `@` | `185.199.110.153` |
+   | A | `@` | `185.199.111.153` |
+   | AAAA | `@` | `2606:50c0:8000::153` |
+   | AAAA | `@` | `2606:50c0:8001::153` |
+   | AAAA | `@` | `2606:50c0:8002::153` |
+   | AAAA | `@` | `2606:50c0:8003::153` |
+   | CNAME | `www` | `pas-mllr.github.io` |
+
+4. In **Settings → Pages**, confirm the custom domain shows `ozzysports.live`, wait for
+   the DNS check and certificate, then tick **Enforce HTTPS**.
 
 ## Notes & limitations
 
