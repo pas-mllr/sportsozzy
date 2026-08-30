@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>SportsOzzy — Watching</title>
+  <link rel="stylesheet" href="/style.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hls.js/1.5.15/hls.min.js"></script>
+</head>
+<body>
+  <div class="wrap">
+    <h1><a href="/" style="color:inherit;text-decoration:none">Sports<span class="oz">Ozzy</span></a> 🎙️
+      <span style="font-size:14px;font-weight:400;color:var(--muted)"><span class="status-dot" id="dot"></span><span id="status">idle</span></span>
+    </h1>
+
+    <div class="player-grid">
+      <div>
+        <video id="video" crossorigin="anonymous" playsinline controls muted></video>
+        <div class="card controls" style="margin-top:16px">
+          <div class="row">
+            <button id="start">▶ Start SportsOzzy</button>
+            <button id="stop" class="secondary" disabled>■ Stop commentator</button>
+            <div class="grow"></div>
+            <label style="margin:0">Spice
+              <select id="spice" style="width:auto;margin-left:6px">
+                <option value="family">Family friendly</option>
+                <option value="cheeky" selected>Cheeky</option>
+                <option value="full">Full Ozzy</option>
+              </select>
+            </label>
+          </div>
+          <div class="row">
+            <div class="grow">
+              <label>Original commentator removal <span id="karaokeVal" class="hint" style="display:inline">80%</span></label>
+              <input type="range" id="karaoke" min="0" max="100" value="80" />
+              <p class="hint">Cancels the centre channel (where the broadcast voice sits) but keeps stereo crowd &amp; ambient sound.</p>
+            </div>
+            <div class="grow">
+              <label>Ambient volume</label>
+              <input type="range" id="ambientVol" min="0" max="100" value="70" />
+            </div>
+            <div class="grow">
+              <label>Ozzy volume</label>
+              <input type="range" id="ozzyVol" min="0" max="100" value="100" />
+            </div>
+          </div>
+          <div class="row">
+            <div class="grow">
+              <label>Commentary pace: every <span id="paceVal">15</span>s</label>
+              <input type="range" id="pace" min="8" max="45" value="15" />
+            </div>
+            <div class="grow">
+              <label>Context for the commentator</label>
+              <input type="text" id="sport" placeholder="e.g. WK mountainbike, Van der Poel favourite" />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3 style="margin-top:0">Commentary</h3>
+        <div id="transcript"><p class="hint" style="background:none;border:none">Press “Start SportsOzzy” — the first line takes a few seconds.</p></div>
+      </div>
+    </div>
+
+    <footer id="warn"></footer>
+  </div>
+
+  <script src="/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,18 @@
+{
+  "name": "sportsozzy",
+  "version": "1.0.0",
+  "description": "AI sports commentator for live streams — replaces dry broadcast commentary with an Ozzy-Man-meets-Louis-CK style commentator powered by OpenAI vision + speech models, while keeping the ambient stadium sound.",
+  "main": "server.js",
+  "type": "module",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "express": "^4.21.2"
+  },
+  "license": "MIT"
+}

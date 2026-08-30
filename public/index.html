@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>SportsOzzy — AI sports commentator</title>
+  <link rel="stylesheet" href="/style.css" />
+</head>
+<body>
+  <div class="wrap">
+    <h1>Sports<span class="oz">Ozzy</span> 🎙️</h1>
+    <p class="tagline">
+      Replace dry, boring sports commentary with a live AI commentator —
+      half Aussie larrikin, half weary stand-up — while keeping the stadium sound.
+    </p>
+
+    <div class="card">
+      <label for="url">Live stream URL</label>
+      <p class="hint">
+        Paste a stream page (e.g. <code>https://nos.nl/livestream/2614835-wk-mountainbike-met-van-der-poel</code>)
+        or a direct HLS <code>.m3u8</code> URL.
+      </p>
+      <div class="row" style="margin-top:8px">
+        <input class="grow" type="url" id="url" placeholder="https://nos.nl/livestream/…  or  https://…/master.m3u8" />
+        <button id="resolve">Find stream</button>
+      </div>
+
+      <label for="sport" style="margin-top:16px">What are we watching? <span style="font-weight:400;color:var(--muted)">(optional, helps the commentator)</span></label>
+      <input type="text" id="sport" placeholder="e.g. Mountain bike World Championship, Van der Poel is the favourite" />
+
+      <div id="result"></div>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-top:0">How it works</h3>
+      <ol style="margin:0; padding-left:20px; color:var(--muted)">
+        <li>The stream is proxied through this server so your browser can play it and snapshot frames from it.</li>
+        <li>Every few seconds, frames go to an OpenAI vision model that writes the next commentary line in character.</li>
+        <li>The line is spoken by OpenAI's <code>gpt-4o-mini-tts</code> speech model with a rowdy commentator delivery.</li>
+        <li>The original commentator's voice is cancelled out of the broadcast audio (centre-channel removal), so crowd and ambient sound stay — with automatic ducking while Ozzy talks.</li>
+      </ol>
+    </div>
+
+    <footer>
+      For personal use with streams you're allowed to watch. Nothing is re-broadcast; the stream plays in your own browser.
+    </footer>
+  </div>
+
+  <script>
+    const $ = (id) => document.getElementById(id);
+    $('resolve').addEventListener('click', resolveStream);
+    $('url').addEventListener('keydown', (e) => { if (e.key === 'Enter') resolveStream(); });
+
+    async function resolveStream() {
+      const url = $('url').value.trim();
+      const result = $('result');
+      if (!url) { result.innerHTML = '<p class="error">Paste a URL first.</p>'; return; }
+      $('resolve').disabled = true;
+      result.innerHTML = '<p class="hint">Looking for the stream…</p>';
+      try {
+        const r = await fetch('/api/resolve?url=' + encodeURIComponent(url));
+        const data = await r.json();
+        if (!r.ok) throw new Error(data.error || 'Failed to resolve.');
+        const sport = $('sport').value.trim();
+        const links = data.streams.slice(0, 3).map((s, i) => {
+          const href = '/watch.html?src=' + encodeURIComponent(s) + (sport ? '&sport=' + encodeURIComponent(sport) : '');
+          const label = i === 0 ? '▶ Watch with SportsOzzy commentary' : `▶ Alternative stream ${i + 1}`;
+          return `<a class="watch-link" href="${href}">${label}</a>`;
+        }).join('<br/>');
+        result.innerHTML = `<p class="ok">Found ${data.streams.length} stream(s). This link is shareable — anyone who can reach this server can use it.</p>${links}`;
+      } catch (err) {
+        result.innerHTML = `<p class="error">${err.message}</p>`;
+      } finally {
+        $('resolve').disabled = false;
+      }
+    }
+  </script>
+</body>
+</html>
