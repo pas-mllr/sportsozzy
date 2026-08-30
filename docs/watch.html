@@ -15,7 +15,10 @@
 
     <div class="player-grid">
       <div>
-        <video id="video" crossorigin="anonymous" playsinline controls muted></video>
+        <div class="video-wrap">
+          <video id="video" crossorigin="anonymous" playsinline controls muted></video>
+          <button id="playOverlay" hidden>▶ Play with Ozzy</button>
+        </div>
         <div class="card controls" style="margin-top:16px">
           <div class="row">
             <button id="start">▶ Start Ozzy Sports</button>
@@ -72,6 +75,7 @@
     <footer id="warn"></footer>
   </div>
 
+  <script src="config.js"></script>
   <script src="app.js"></script>
 </body>
 </html>

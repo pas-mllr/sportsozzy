@@ -81,6 +81,13 @@ browser, deployed to GitHub Pages by `.github/workflows/pages.yml` on every push
 - Streams play **straight from their CDN** (no proxy), so you need the direct `.m3u8`
   URL, and the CDN must allow cross-origin access for frame capture (most HLS CDNs do).
   Geo-blocked streams follow the viewer's own location; DRM streams don't work anywhere.
+- **`docs/config.js`** holds the site defaults: a pre-loaded stream URL (note: NOS
+  URLs carry signed tokens that expire — refresh the value when playback stops) and the
+  default commentator context. With a default stream set, the watch page shows a single
+  big **Play** button that starts stream + commentary in one press. Never put an API key
+  in `config.js` — it's public. For one-click setup on a new device, use a private
+  bookmark of the form `watch.html#key=sk-...`: the page stores the key in that browser
+  and strips it from the address bar.
 
 ### One-time setup
 

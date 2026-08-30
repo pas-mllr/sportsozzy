@@ -46,12 +46,24 @@ much. Big dynamic swings: genuinely SHOUT the exciting bits, almost sigh the sar
 bits. Sound live and off-the-cuff, not like reading a script.`;
 
 const qs = new URLSearchParams(location.search);
-const streamUrl = qs.get('src');
+const cfg = window.OZZY_CONFIG || {};
+const streamUrl = qs.get('src') || cfg.streamUrl || '';
 const $ = (id) => document.getElementById(id);
 
 const video = $('video');
 const transcript = $('transcript');
-if (qs.get('sport')) $('sport').value = qs.get('sport');
+$('sport').value = qs.get('sport') || cfg.sport || '';
+
+// A private bookmark like  watch.html#key=sk-...  stores the key in this
+// browser and immediately strips it from the address bar, so the key never
+// appears in the public site or lingers in the URL.
+try {
+  const hash = new URLSearchParams(location.hash.slice(1));
+  if (hash.get('key')) {
+    localStorage.setItem('sportsozzy_openai_key', hash.get('key').trim());
+    history.replaceState(null, '', location.pathname + location.search);
+  }
+} catch {}
 
 try { $('apikey').value = localStorage.getItem('sportsozzy_openai_key') || ''; } catch {}
 $('apikey').addEventListener('change', () => {
@@ -93,9 +105,23 @@ if (!streamUrl) {
   } else {
     setStatus('this browser cannot play HLS streams');
   }
-  video.play().catch(() => setStatus('press play on the video to begin'));
-  setStatus('stream loaded — original audio muted until you start Ozzy');
+  video.play().catch(() => setStatus('press play to begin'));
+  setStatus('stream loaded — press play to start Ozzy');
+  $('playOverlay').hidden = false;
 }
+
+// One press of play starts everything: the big overlay button, the Start
+// button, or the native video controls all launch stream + commentary
+// together. (Browsers require one user gesture before audio may play.)
+$('playOverlay').addEventListener('click', start);
+video.addEventListener('play', () => {
+  // Ignore the programmatic muted autoplay on page load — only a real user
+  // gesture may build the audio graph and start the commentator.
+  if (!running && !starting && navigator.userActivation?.hasBeenActive) {
+    if (getApiKey()) start();
+    else warn('Enter your OpenAI API key (once) to get Ozzy talking — the stream plays without commentary until then.');
+  }
+});
 
 // ---------------------------------------------------------------------------
 // Audio graph (same design as the server build)
@@ -263,6 +289,7 @@ async function generateCommentary(frames, history, sport, spice) {
 // ---------------------------------------------------------------------------
 
 let running = false;
+let starting = false;
 let captureTimer = null;
 const history = [];
 
@@ -328,22 +355,28 @@ async function commentaryCycle() {
 }
 
 async function start() {
-  if (running) return;
+  if (running || starting) return;
   if (!getApiKey()) {
     warn('Enter your OpenAI API key first — it is stored only in this browser.');
     $('apikey').focus();
     return;
   }
-  warn('');
-  buildAudioGraph();
-  await ctx.resume();
-  video.play().catch(() => {});
-  running = true;
-  $('start').disabled = true;
-  $('stop').disabled = false;
-  captureTimer = setInterval(captureFrame, 4000);
-  captureFrame();
-  commentaryCycle();
+  starting = true;
+  try {
+    warn('');
+    $('playOverlay').hidden = true;
+    buildAudioGraph();
+    await ctx.resume();
+    video.play().catch(() => {});
+    running = true;
+    $('start').disabled = true;
+    $('stop').disabled = false;
+    captureTimer = setInterval(captureFrame, 4000);
+    captureFrame();
+    commentaryCycle();
+  } finally {
+    starting = false;
+  }
 }
 
 function stop() {
