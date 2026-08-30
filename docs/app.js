@@ -1,4 +1,4 @@
-/* SportsOzzy static player (GitHub Pages build): HLS playback straight from the
+/* Ozzy Sports static player (GitHub Pages build): HLS playback straight from the
  * stream CDN, frame capture, direct browser→OpenAI commentary, audio mixing.
  * The OpenAI key lives only in this browser's localStorage. */
 
@@ -83,7 +83,7 @@ if (!streamUrl) {
       if (data.fatal) {
         setStatus('stream error: ' + data.details);
         if (data.type === Hls.ErrorTypes.NETWORK_ERROR) {
-          warn('If this keeps failing, the CDN may block cross-origin access or the stream may be geo-blocked. The self-hosted server version of SportsOzzy proxies streams past this.');
+          warn('If this keeps failing, the CDN may block cross-origin access or the stream may be geo-blocked. The self-hosted server version of Ozzy Sports proxies streams past this.');
           hls.startLoad();
         }
       }
@@ -183,7 +183,7 @@ function captureFrame() {
     frameBuffer.push(captureCanvas.toDataURL('image/jpeg', 0.55));
     if (frameBuffer.length > 3) frameBuffer.shift();
   } catch (err) {
-    warn('This stream\'s CDN does not allow cross-origin frame capture, so the commentator cannot see the video. The self-hosted server version of SportsOzzy proxies the stream to fix this.');
+    warn('This stream\'s CDN does not allow cross-origin frame capture, so the commentator cannot see the video. The self-hosted server version of Ozzy Sports proxies the stream to fix this.');
     stop();
   }
 }
