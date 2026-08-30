@@ -84,9 +84,9 @@ browser, deployed to GitHub Pages by `.github/workflows/pages.yml` on every push
 
 ### One-time setup
 
-1. In the repo: **Settings → Pages → Build and deployment → Source: GitHub Actions.**
-2. Merge to `main` (or run the "Deploy GitHub Pages" workflow manually). The site appears
-   at `https://pas-mllr.github.io/sportsozzy/`.
+1. Push to `main` (or run the "Deploy GitHub Pages" workflow manually). The workflow
+   enables Pages itself (`enablement: true`) and the site appears at
+   `https://pas-mllr.github.io/sportsozzy/`.
 3. `docs/CNAME` already declares `ozzysports.live`. At your domain registrar, add:
 
    | Type | Name | Value |
