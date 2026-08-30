@@ -14,6 +14,13 @@
       half Aussie larrikin, half weary stand-up — while keeping the stadium sound.
     </p>
 
+    <div class="card" id="quickplay" hidden>
+      <h3 style="margin-top:0">Today's stream is ready 🚵</h3>
+      <p class="hint" id="quickplayHint">The NOS stream is pre-loaded. First time here? You'll be asked for your
+        OpenAI API key once — it stays in your browser.</p>
+      <a class="watch-link" href="watch.html">▶ Play the NOS stream with Ozzy</a>
+    </div>
+
     <div class="card">
       <label for="url">Live stream URL (direct HLS <code>.m3u8</code>)</label>
       <p class="hint">
@@ -61,8 +68,10 @@
     </footer>
   </div>
 
+  <script src="config.js"></script>
   <script>
     const $ = (id) => document.getElementById(id);
+    if (window.OZZY_CONFIG && OZZY_CONFIG.streamUrl) $('quickplay').hidden = false;
     try { $('key').value = localStorage.getItem('sportsozzy_openai_key') || ''; } catch {}
 
     $('go').addEventListener('click', () => {

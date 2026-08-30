@@ -101,7 +101,27 @@ video {
   background: #000;
   border-radius: 12px;
   border: 1px solid var(--border);
+  display: block;
 }
+
+.video-wrap { position: relative; }
+#playOverlay {
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  width: min(260px, 70%);
+  height: 68px;
+  font-size: 20px;
+  font-weight: 800;
+  background: var(--accent2);
+  color: #1a1a1a;
+  border: none;
+  border-radius: 14px;
+  cursor: pointer;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.5);
+  z-index: 2;
+}
+#playOverlay:hover { filter: brightness(1.08); }
 
 .controls .row { margin: 10px 0; }
 .controls label { margin: 8px 0 2px; font-size: 14px; }
