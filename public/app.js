@@ -1,4 +1,4 @@
-/* SportsOzzy player: HLS playback, frame capture, commentary loop, audio mixing. */
+/* Ozzy Sports player: HLS playback, frame capture, commentary loop, audio mixing. */
 
 const qs = new URLSearchParams(location.search);
 const streamUrl = qs.get('src');

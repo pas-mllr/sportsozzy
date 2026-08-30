@@ -1,4 +1,4 @@
-// SportsOzzy — AI sports commentator for live streams.
+// Ozzy Sports — AI sports commentator for live streams.
 //
 // Endpoints:
 //   GET  /api/resolve?url=...     resolve a stream page (e.g. an NOS livestream page) to an HLS .m3u8 URL
@@ -44,7 +44,7 @@ if (APP_PASSWORD) {
       : '';
     const password = decoded.includes(':') ? decoded.slice(decoded.indexOf(':') + 1) : '';
     if (password && timingSafeEqual(digest(password), expected)) return next();
-    res.setHeader('WWW-Authenticate', 'Basic realm="SportsOzzy"');
+    res.setHeader('WWW-Authenticate', 'Basic realm="Ozzy Sports"');
     res.status(401).send('Authentication required');
   });
 }
@@ -167,7 +167,7 @@ app.get('/api/resolve', async (req, res) => {
     await assertPublicHost(pageUrl);
     const candidates = new Set();
     const page = await fetch(pageUrl, {
-      headers: { 'User-Agent': 'Mozilla/5.0 (SportsOzzy)', Accept: 'text/html,*/*' },
+      headers: { 'User-Agent': 'Mozilla/5.0 (OzzySports)', Accept: 'text/html,*/*' },
       redirect: 'follow',
     });
     const html = await page.text();
@@ -184,7 +184,7 @@ app.get('/api/resolve', async (req, res) => {
       ];
       for (const apiUrl of apiUrls) {
         try {
-          const r = await fetch(apiUrl, { headers: { 'User-Agent': 'Mozilla/5.0 (SportsOzzy)' } });
+          const r = await fetch(apiUrl, { headers: { 'User-Agent': 'Mozilla/5.0 (OzzySports)' } });
           if (!r.ok) continue;
           for (const u of await findM3u8InText(await r.text())) candidates.add(u);
         } catch { /* try the next one */ }
@@ -238,7 +238,7 @@ app.get('/api/proxy', async (req, res) => {
   try {
     await assertPublicHost(target);
     const upstream = await fetch(target, {
-      headers: { 'User-Agent': 'Mozilla/5.0 (SportsOzzy)', Referer: new URL(target).origin },
+      headers: { 'User-Agent': 'Mozilla/5.0 (OzzySports)', Referer: new URL(target).origin },
       redirect: 'follow',
     });
     if (!upstream.ok) {
@@ -361,7 +361,7 @@ app.get('/api/health', (_req, res) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`SportsOzzy listening on http://localhost:${PORT}`);
+  console.log(`Ozzy Sports listening on http://localhost:${PORT}`);
   if (!OPENAI_API_KEY) {
     console.warn('WARNING: OPENAI_API_KEY is not set — commentary generation will fail.');
   }

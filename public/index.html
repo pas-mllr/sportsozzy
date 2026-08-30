@@ -3,12 +3,12 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>SportsOzzy — AI sports commentator</title>
+  <title>Ozzy Sports — AI sports commentator</title>
   <link rel="stylesheet" href="/style.css" />
 </head>
 <body>
   <div class="wrap">
-    <h1>Sports<span class="oz">Ozzy</span> 🎙️</h1>
+    <h1><span class="oz">Ozzy</span> Sports 🎙️</h1>
     <p class="tagline">
       Replace dry, boring sports commentary with a live AI commentator —
       half Aussie larrikin, half weary stand-up — while keeping the stadium sound.
@@ -64,7 +64,7 @@
         const sport = $('sport').value.trim();
         const links = data.streams.slice(0, 3).map((s, i) => {
           const href = '/watch.html?src=' + encodeURIComponent(s) + (sport ? '&sport=' + encodeURIComponent(sport) : '');
-          const label = i === 0 ? '▶ Watch with SportsOzzy commentary' : `▶ Alternative stream ${i + 1}`;
+          const label = i === 0 ? '▶ Watch with Ozzy Sports commentary' : `▶ Alternative stream ${i + 1}`;
           return `<a class="watch-link" href="${href}">${label}</a>`;
         }).join('<br/>');
         result.innerHTML = `<p class="ok">Found ${data.streams.length} stream(s). This link is shareable — anyone who can reach this server can use it.</p>${links}`;

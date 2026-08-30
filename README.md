@@ -1,4 +1,4 @@
-# SportsOzzy 🎙️
+# Ozzy Sports 🎙️
 
 An AI sports commentator for live streams. Point it at a live sport stream — like an
 [NOS livestream](https://nos.nl/livestream/2614835-wk-mountainbike-met-van-der-poel) —
@@ -44,9 +44,9 @@ npm start
 # open http://localhost:3210
 ```
 
-Paste a stream URL, click **Find stream**, then click the **Watch with SportsOzzy
+Paste a stream URL, click **Find stream**, then click the **Watch with Ozzy Sports
 commentary** link. That link (`/watch.html?src=…`) is shareable with anyone who can reach
-your server. On the watch page, press **Start SportsOzzy** (a click is required — browsers
+your server. On the watch page, press **Start Ozzy Sports** (a click is required — browsers
 demand a user gesture before audio can play).
 
 ### Configuration (env vars)
@@ -71,7 +71,7 @@ demand a user gesture before audio can play).
 
 ## Hosted version: ozzysports.live (GitHub Pages)
 
-The `docs/` folder is a fully static build of SportsOzzy that runs entirely in the
+The `docs/` folder is a fully static build of Ozzy Sports that runs entirely in the
 browser, deployed to GitHub Pages by `.github/workflows/pages.yml` on every push to
 `main`. Differences from the server version:
 
