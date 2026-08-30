@@ -41,7 +41,7 @@ while Ozzy is talking.
 npm install
 export OPENAI_API_KEY=sk-...
 npm start
-# open http://localhost:3000
+# open http://localhost:3210
 ```
 
 Paste a stream URL, click **Find stream**, then click the **Watch with SportsOzzy
@@ -58,7 +58,7 @@ demand a user gesture before audio can play).
 | `OPENAI_TTS_MODEL` | `gpt-4o-mini-tts` | OpenAI speech model. |
 | `OPENAI_TTS_VOICE` | `ash` | TTS voice (`ash`, `verse`, `ballad`, `coral`, …). |
 | `OPENAI_BASE_URL` | `https://api.openai.com/v1` | Override for proxies/compatible APIs. |
-| `PORT` | `3000` | HTTP port. |
+| `PORT` | `3210` | HTTP port. |
 
 ### In-player controls
 
